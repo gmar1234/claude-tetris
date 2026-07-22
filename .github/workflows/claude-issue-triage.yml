@@ -40,6 +40,7 @@ jobs:
                - Área/función probable del código afectada (con referencia a archivo y, si aplica, nombre de función).
                - Hipótesis de causa raíz.
                - Próximos pasos sugeridos para implementar la solución (sin escribir el código todavía).
+               El comentario debe estar escrito en formato Markdown válido, tal como lo interpreta GitHub (encabezados, listas, bloques de código con \`\`\` y referencias a archivo con backticks simples, etc.).
 
             No modifiques archivos del repositorio ni hagas commits o pushes. Tu única salida son la(s) label(s) asignada(s) y el comentario de diagnóstico.
 
