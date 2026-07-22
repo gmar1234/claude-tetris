@@ -1,0 +1,47 @@
+name: Claude Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage:
+    if: github.event.issue.state == 'open'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Issue Triage
+        id: claude-triage
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          prompt: |
+            Analizá el issue #${{ github.event.issue.number }} de este repositorio (Tetris en JavaScript vanilla, ver CLAUDE.md para la arquitectura).
+
+            Pasos:
+            1. Leé el título y el cuerpo del issue con `gh issue view ${{ github.event.issue.number }}`.
+            2. Revisá el código relevante en `game.js` (y `index.html`/`style.css` si aplica) para entender el área afectada.
+            3. Elegí entre 1 y 3 labels apropiadas de las que ya existen en el repo (consultalas con `gh label list` si hace falta) y aplicalas con:
+               `gh issue edit ${{ github.event.issue.number }} --add-label "label1,label2"`
+               No crees labels nuevas.
+            4. Publicá un comentario de diagnóstico en el issue con:
+               `gh issue comment ${{ github.event.issue.number }} --body "..."`
+               El comentario debe incluir, en español:
+               - Resumen breve del problema.
+               - Área/función probable del código afectada (con referencia a archivo y, si aplica, nombre de función).
+               - Hipótesis de causa raíz.
+               - Próximos pasos sugeridos para implementar la solución (sin escribir el código todavía).
+
+            No modifiques archivos del repositorio ni hagas commits o pushes. Tu única salida son la(s) label(s) asignada(s) y el comentario de diagnóstico.
+
+          claude_args: |
+            --allowed-tools "Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*),Read,Grep,Glob"
